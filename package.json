@@ -1,17 +1,19 @@
 {
-  "name": "component-cli",
-  "version": "1.0.0",
-  "description": "",
+  "name": "magic-ct",
+  "version": "1.6.0",
+  "description": "可以快速的创建规范化组件的命令行工具",
   "bin": {
     "ct": "./src/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "files": [
+    "src"
+  ],
+  "author": "lian",
   "license": "ISC",
   "dependencies": {
-    "inquire": "^0.4.8",
     "inquirer": "^8.0.0"
   }
 }
