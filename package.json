@@ -1,6 +1,6 @@
 {
   "name": "magic-ct",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "description": "可以快速的创建规范化组件的命令行工具",
   "bin": {
     "ct": "./src/index.js"
@@ -11,9 +11,14 @@
   "files": [
     "src"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/realizeded/magic-ct.git"
+  },
   "author": "lian",
   "license": "ISC",
   "dependencies": {
     "inquirer": "^8.0.0"
-  }
+  },
+  "private": false
 }

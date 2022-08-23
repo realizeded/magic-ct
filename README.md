@@ -9,7 +9,7 @@ npm i -g magic-ct
 ```
 * 配置文件
 ```
-//component.config
+//component.config.json
 {
     "component": {
         "file": [
