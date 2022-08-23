@@ -4,7 +4,7 @@ const Fs = require("fs");
 const inquirer = require("inquirer");
 const { selectBox, configFileName, promptList } = require("./constant");
 const { resolve } = require("path");
-
+const { fileExist, readFile } = require("./processFile");
 const outputSelectBox = () => {
   return inquirer.prompt(selectBox);
 };
@@ -15,7 +15,7 @@ const outputInput = () => {
 
 const exist = (path) => {
   return new Promise((resolve, reject) => {
-    const filePath = Path.join(path, configFileName);
+    const filePath = path;
 
     Fs.exists(filePath, (result) => {
       if (result) {
@@ -27,9 +27,9 @@ const exist = (path) => {
 };
 
 const findConfigFIlePath = (cliExecPath) => {
-  return exist(cliExecPath).then(
-    (path) => {
-      return path;
+  return exist(Path.join(cliExecPath, configFileName)).then(
+    () => {
+      return cliExecPath;
     },
     () => {
       const parentPath = Path.join(cliExecPath, "../");
@@ -53,8 +53,10 @@ const generatorSingleDif = (path) => {
   });
 };
 
-const generatorDir = (dirs, path) => {
-  const dirsPath = dirs.map((dir) => Path.join(path, dir));
+const generatorDir = (dirs, path, name) => {
+  const dirsPath = dirs.map((dir) =>
+    Path.join(path, dir.replace(/CtName/g, name))
+  );
 
   dirsPath.forEach((dirPath) => {
     Fs.mkdir(dirPath, (err) => {
@@ -65,32 +67,52 @@ const generatorDir = (dirs, path) => {
   });
 };
 
-const generatorFile = (files, path) => {
-  const filePaths = files.map((file) => Path.join(path, file));
+const generatorFile = (files, path, name, type, configPath) => {
+  const processFiles = files.map((file) => file.replace(/CtName/g, name));
 
-  filePaths.forEach((filePath) => {
-    Fs.writeFile(filePath, "", "utf-8", (err) => {
-      if (err) {
-        throw err;
-      }
-    });
+  const filePaths = processFiles.map((file) => Path.join(path, file));
+
+  filePaths.forEach((filePath, i) => {
+    const templatePath = Path.join(
+      configPath,
+      "./ctTemplate",
+      type,
+      processFiles[i]
+    );
+
+    fileExist(templatePath)
+      .then((exist) => {
+        if (exist) {
+          return readFile(templatePath);
+        }
+        return "";
+      })
+      .then((data) => {
+        const newData = data.replace(/CtName/g, name);
+
+        Fs.writeFile(filePath, newData, "utf-8", (err) => {
+          if (err) {
+            throw err;
+          }
+        });
+      });
   });
 };
 
-const parseConfig = (config, path) => {
+const parseConfig = (config, path, type, configPath, name) => {
   Object.keys(config).forEach((key) => {
     const templateList = config[key];
 
     if (key === "dir") {
-      generatorDir(templateList, path);
+      generatorDir(templateList, path, name);
     } else {
-      generatorFile(templateList, path);
+      generatorFile(templateList, path, name, type, configPath);
     }
   });
 };
-const generator = (config, type, path) => {
+const generator = (config, type, path, configPath, name) => {
   const configOfKey = config[type];
-  parseConfig(configOfKey, path);
+  parseConfig(configOfKey, path, type, configPath, name);
 };
 
 const main = async () => {
@@ -99,17 +121,18 @@ const main = async () => {
 
   const { type } = result;
   const cliExecPath = process.cwd();
+
   const configPath = await findConfigFIlePath(cliExecPath);
-  const config = await require(configPath);
+
+  const config = await require(Path.join(configPath, configFileName));
 
   const newPath = Path.join(cliExecPath, name);
 
   generatorSingleDif(newPath)
     .then(() => {
-      generator(config, type, newPath);
+      generator(config, type, newPath, configPath, name);
     })
     .catch((err) => {
-      console.log(err);
       process.stdout.write(`目录已存在${name}`);
     });
 };
