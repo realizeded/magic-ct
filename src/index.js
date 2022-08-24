@@ -68,17 +68,9 @@ const generatorDir = (dirs, path, name) => {
 };
 
 const generatorFile = (files, path, name, type, configPath) => {
-  const processFiles = files.map((file) => file.replace(/CtName/g, name));
-
-  const filePaths = processFiles.map((file) => Path.join(path, file));
-
+  const filePaths = files.map((file) => Path.join(path, file));
   filePaths.forEach((filePath, i) => {
-    const templatePath = Path.join(
-      configPath,
-      "./ctTemplate",
-      type,
-      processFiles[i]
-    );
+    const templatePath = Path.join(configPath, "./ctTemplate", type, files[i]);
 
     fileExist(templatePath)
       .then((exist) => {
@@ -90,11 +82,16 @@ const generatorFile = (files, path, name, type, configPath) => {
       .then((data) => {
         const newData = data.replace(/CtName/g, name);
 
-        Fs.writeFile(filePath, newData, "utf-8", (err) => {
-          if (err) {
-            throw err;
+        Fs.writeFile(
+          filePath.replace(/CtName/g, name),
+          newData,
+          "utf-8",
+          (err) => {
+            if (err) {
+              throw err;
+            }
           }
-        });
+        );
       });
   });
 };
