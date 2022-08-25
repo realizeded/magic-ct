@@ -1,8 +1,15 @@
 #!/usr/bin/env node
+const package = require("../package.json");
 const Path = require("path");
 const Fs = require("fs");
 const inquirer = require("inquirer");
-const { selectBox, configFileName, promptList } = require("./constant");
+const {
+  selectBox,
+  configFileName,
+  promptList,
+  types,
+  nameMapToType,
+} = require("./constant");
 const { resolve } = require("path");
 const { fileExist, readFile } = require("./processFile");
 const outputSelectBox = () => {
@@ -113,8 +120,17 @@ const generator = (config, type, path, configPath, name) => {
 };
 
 const main = async () => {
-  const result = await outputSelectBox();
-  const { name } = await outputInput();
+  let result = null;
+  let name = "";
+  const [inputType, inputName] = processArgus();
+  if (inputType && inputName) {
+    result = { type: inputType };
+    name = inputName;
+  } else {
+    result = await outputSelectBox();
+    const inputResult = await outputInput();
+    name = inputResult.name;
+  }
 
   const { type } = result;
   const cliExecPath = process.cwd();
@@ -132,6 +148,32 @@ const main = async () => {
     .catch((err) => {
       process.stdout.write(`目录已存在${name}`);
     });
+};
+
+const processArgus = () => {
+  // ct -c header
+  const argvs = process.argv;
+  const inputType = argvs[2] || "";
+  const inputName = argvs[3] || "";
+
+  if (inputType === "-v") {
+    process.stdout.write(package.version);
+    process.exit();
+  }
+
+  const ctType = inputType.replace(/-/g, "");
+
+  const configType = nameMapToType[ctType];
+
+  if (configType) {
+    if (inputName) {
+      return [configType, inputName];
+    } else {
+      throw new Error("命令不正确");
+      process.exit();
+    }
+  }
+  return [];
 };
 
 main();

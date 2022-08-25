@@ -1,3 +1,7 @@
+exports.nameMapToType = {
+  p: "page",
+  c: "component",
+};
 exports.selectBox = [
   {
     type: "list",
@@ -17,3 +21,5 @@ exports.promptList = [
 ];
 
 exports.configFileName = "component.config.json";
+
+exports.types = ["c", "p"];

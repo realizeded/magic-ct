@@ -1,6 +1,6 @@
 {
   "name": "magic-ct",
-  "version": "1.9.0",
+  "version": "2.0.0",
   "description": "可以快速的创建规范化组件的命令行工具",
   "bin": {
     "ct": "./src/index.js"

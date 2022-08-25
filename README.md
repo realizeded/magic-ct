@@ -80,3 +80,11 @@ const Yes: React.FC<IProps> = () => {
   return <div></div>;
 };
 ```
+
+## ct支持的参数
+* ct -c <名称> \
+快速创建component
+* ct -p <名称>  \
+  快速创建page
+* ct -v  \
+查看当前使用的版本
